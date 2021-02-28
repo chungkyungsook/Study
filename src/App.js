@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import React, { useState, useRef } from "react"
+
+const App = () =>{
+  const [count, setCount] = useState(0)
+  const intervalId = useRef(null)
+  
+  console.log(`랜더링... count: ${count}`)
+
+  const startCounter = () => {
+    intervalId.current = setInterval(() => setCount((count) => count + 1), 1000)
+    console.log(`시작... intervalId: ${intervalId.current}`)
+    
+  }
+
+  const stopCounter = () => {
+    clearInterval(intervalId.current)
+    console.log(`정지... intervalId: ${intervalId.current}`)
+  }
+
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <p>자동 카운트: {count}</p>
+      <button onClick={startCounter}>시작</button>
+      <button onClick={stopCounter}>정지</button>
+    </>
+  )
 }
 
 export default App;

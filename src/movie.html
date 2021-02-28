@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas {
+            border : 1px solid #111 ;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mycanvas" width="1500px" height="800px"></canvas>
+    <button id="recorder_btn">다운로드</button>
+</body>
+<script>
+
+    const WIDTH = 1500, HEIGHT = 800, FPS = 9 ;
+    const FILE_NUM = 6 ;
+
+    const button = document.getElementById('recorder_btn') ;
+    const canvas = document.getElementById('mycanvas') ;
+    const ctx = canvas.getContext('2d') ;
+
+    button.style.color = '#999' ;
+
+    // 사진, 영상 변수
+    // let mediaStream ;
+    let videoRecord ;
+
+    // data ------
+    const img1 = new Image() ;
+    img1.src = 'bsdp_03.jpg' ;
+
+    const img2 = new Image() ;
+    img2.src = 'KakaoTalk_20200608_215411573.jpg' ;
+    
+    const img3 = new Image() ;
+    img3.src = 'unnamed.jpg' ;
+
+    const arr = [ img1, img2, img3 ]  ;
+
+    for(let i = 0 ; i < FILE_NUM ; i++) {
+        const img = new Image() ;
+        img.src = `./recording_image/${i + 1}.jpg` ;
+        arr.push(img)
+    }
+    // data ------
+
+    const handleVideoData = e => {
+        const { data : videoFile } = e ;
+
+        // 버블링
+        button.addEventListener('click', function() {
+            const link = document.createElement('a') ;
+            link.href = URL.createObjectURL(videoFile) ;
+            link.download = 'recorded.mp4' ;
+            document.body.appendChild(link) ;
+            link.click() ;
+        }, false) ;
+    }
+    
+    // recording 시작
+    function startRecording() {
+        let streams = canvas.captureStream(30) ;
+        let tracks = streams.getVideoTracks()[0] ;
+
+        videoRecord = new MediaRecorder(streams) ;
+        videoRecord.start() ;
+        videoRecord.ondataavailable = handleVideoData ;
+    }
+
+    // 사진 합쳐서 영상처럼 보여주기
+    let count = 0 ;
+
+    window.onload = function() {
+
+        startRecording() ;
+        
+        const clearData = setInterval(() => {
+            if(count == arr.length) { 
+                clearInterval(clearData) ;
+                button.style.color = '#111' ;
+                videoRecord.stop() ;
+                return ; 
+            }
+            ctx.drawImage(arr[count++], 0, 0, WIDTH, HEIGHT) ;
+        }, 1000 / FPS) ; 
+    }
+
+
+    // 버튼 작성해라
+</script>
+</html>
