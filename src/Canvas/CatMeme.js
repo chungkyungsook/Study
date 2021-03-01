@@ -7,55 +7,77 @@ const CatMeme = () =>{
     const [topText, setTopText] = useState('')
     const [bottomText, setBottomText] = useState('')
         
-    useEffect(()=>{
-        const catImage = new Image();
-        catImage.src = 'https://thiscatdoesnotexist.com'
-        catImage.onload = () => setImage(catImage) // 처음 로딩 할때 그림 넣기
-    },[])
+    const WIDTH = 800 - 120, HEIGHT = 800 - 100, FPS = 2;
+    const FILE_NUM = 6 ;
     
-    useEffect(()=>{
+    // 사진, 영상 변수
+    let videoRecord ;
+    const api = '54.163.128.160'
+
+    const img1 = new Image() ;
+    img1.src = `http://${api}/api/help/image/1` ;
+
+    const img2 = new Image() ;
+    img2.src = `http://${api}/api/help/image/1` ;
     
-        if(image && canvas){
-            const num = 20
-            const ctx = canvas.current.getContext('2d')
-            //배경 설정
-            ctx.fillStyle = 'black'
-            ctx.fillRect(0, 0, 700, 706 + 70 )
+    const img3 = new Image() ;
+    img3.src = `http://${api}/api/compost/1` ;
 
-            // 배경 안 희색 배경
-            ctx.fillStyle = 'white'
-            ctx.fillRect(60, 60, 700 - 130, 606 + 50 )
-            ctx.drawImage(image, (400 - 230) /2, 80)
+    const arr = [ img1, img2, img3 ]  ;
+    const [images, setImages] = useState('') //모든 이미지 저장
 
-            //폰트 설정
-            ctx.font = '20px Comic Sans MS '
-            ctx.fillStyle = 'white'
-            ctx.textAlign = 'center'
-            //위치 설정
-            ctx.fillText(topText, (700 /2), 45)
-
-            //위와 이하동문
-            ctx.font = '22px Comic Sans MS '
-            ctx.fillStyle = 'black'
-            ctx.fillText(bottomText, (700 / 2), 600 + 40 + 25)
-
-            ctx.beginPath();
-            ctx.fillStyle = 'white'
-            ctx.moveTo(75, 40);
-            ctx.bezierCurveTo(75, 37, 70, 25, 50, 25);
-            ctx.bezierCurveTo(20, 25, 20, 62.5, 20, 62.5);
-            ctx.bezierCurveTo(20, 80, 40, 102, 75, 120);
-            ctx.bezierCurveTo(110, 102, 130, 80, 130, 62.5);
-            ctx.bezierCurveTo(130, 62.5, 130, 25, 100, 25);
-            ctx.bezierCurveTo(85, 25, 75, 37, 75, 40);
-            ctx.fill();
-        }
-    },[image, canvas,topText, bottomText])
-
-    //해당 사진 캡처해서 반환
-    const startRecording = (e)=>{
-
+    useEffect(()=>{
         
+
+        for(let i = 0 ; i < FILE_NUM ; i++) {
+            for(let j = 0 ; j < FILE_NUM -4 ; j++) {
+                const img = new Image() ;
+                img.src = `http://${api}/api/help/image/${j + 1}` ;
+                arr.push(img)
+            }
+        }
+
+        setImages(arr) // 모든 데이터 저장
+
+        // const catImage = new Image();
+        // catImage.src = 'https://thiscatdoesnotexist.com'
+        // catImage.onload = () => setImage(catImage) // 처음 로딩 할때 그림 넣기
+        const ctx = canvas.current.getContext('2d')
+        //배경 설정
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0, 0, 700, 706 + 70 )
+    },[])
+
+
+    // // let [count, setCount] = useState(0) ;
+    // useEffect(()=>{
+
+
+    //     if(images && canvas ){
+    //         const ctx = canvas.current.getContext('2d')
+    //         //배경 설정
+    //         ctx.fillStyle = 'black'
+    //         ctx.fillRect(0, 0, 700, 706 + 70 )
+    //     }
+        
+
+    // },[images, canvas,topText, bottomText])
+
+    // 사진 합쳐서 영상처럼 보여주기
+    const replay = () =>{
+        let count = 0;
+        const ctx = canvas.current.getContext('2d')
+        //배경 설정
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0, 0, 700, 706 + 70 )
+
+        const clearData = setInterval(() => { //일정한 시간 간격으로 작업을 수행하기 위해서 사용
+            if(count === images.length) {  // 영상 없으면 멈춤
+                clearInterval(clearData) ; // 반복을 멈추기 위해 
+                return ; 
+            }
+            ctx.drawImage(images[count++], 10, 10, WIDTH, HEIGHT) ;
+        }, 1000 / FPS) ; 
     }
 
     return(
@@ -83,7 +105,7 @@ const CatMeme = () =>{
                     onChange = {e => setBottomText(e.target.value)}
                 />
             </div>
-            <button onClick={startRecording}>다운로드</button>
+            <button onClick={replay}>재생</button>
         </>
     )
 }
